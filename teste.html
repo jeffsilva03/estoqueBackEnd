@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testador de API - Sistema de Estoque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .test-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .test-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .test-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .test-button.success {
+            background: #27ae60;
+        }
+
+        .test-button.error {
+            background: #e74c3c;
+        }
+
+        .result-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-online { background: #27ae60; }
+        .status-offline { background: #e74c3c; }
+        .status-testing { background: #f39c12; }
+
+        .endpoint-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .endpoint-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .method-get { background: #e3f2fd; color: #1976d2; }
+        .method-post { background: #e8f5e8; color: #2e7d32; }
+        .method-put { background: #fff3e0; color: #f57c00; }
+        .method-delete { background: #ffebee; color: #d32f2f; }
+
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            border-radius: 3px;
+        }
+
+        .log-success { background: #d4edda; color: #155724; }
+        .log-error { background: #f8d7da; color: #721c24; }
+        .log-info { background: #d1ecf1; color: #0c5460; }
+
+        .quick-tests {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧪 Testador de API - Sistema de Estoque</h1>
+            <p>Ferramenta para testar e validar todas as rotas da API</p>
+        </header>
+
+        <div class="test-section">
+            <h2>Status da API</h2>
+            <div id="apiStatus">
+                <span class="status-indicator status-testing"></span>
+                <span>Verificando conexão...</span>
+            </div>
+            
+            <div class="quick-tests">
+                <button class="test-button" onclick="testConnection()">🔗 Testar Conexão</button>
+                <button class="test-button" onclick="testDashboard()">📊 Dashboard</button>
+                <button class="test-button" onclick="testProducts()">📦 Produtos</button>
+                <button class="test-button" onclick="testSales()">💰 Vendas</button>
+                <button class="test-button" onclick="runAllTests()">🚀 Testar Tudo</button>
+                <button class="test-button" onclick="clearLog()">🗑️ Limpar Log</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Endpoints Disponíveis</h2>
+            <div class="endpoint-list" id="endpointList">
+                <!-- Será preenchido dinamicamente -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Log de Testes</h2>
+            <div class="result-area" id="logArea">
+                <div class="log-info">Aguardando testes...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Teste de Inserção de Dados</h2>
+            <button class="test-button" onclick="createSampleProduct()">➕ Criar Produto de Teste</button>
+            <button class="test-button" onclick="createSampleSale()">🛒 Criar Venda de Teste</button>
+            <div class="result-area" id="insertResults" style="margin-top: 1rem;">
+                <div class="log-info">Clique nos botões acima para testar inserção de dados</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let logEntries = [];
+
+        // Endpoints da API
+        const endpoints = [
+            { method: 'GET', path: '/test', description: 'Teste de conexão' },
+            { method: 'GET', path: '/dashboard', description: 'Dashboard principal' },
+            { method: 'GET', path: '/products', description: 'Listar produtos' },
+            { method: 'POST', path: '/products', description: 'Criar produto' },
+            { method: 'GET', path: '/products/low-stock', description: 'Produtos com estoque baixo' },
+            { method: 'GET', path: '/sales', description: 'Listar vendas' },
+            { method: 'POST', path: '/sales', description: 'Criar venda' },
+            { method: 'GET', path: '/categories', description: 'Listar categorias' },
+            { method: 'GET', path: '/suppliers', description: 'Listar fornecedores' },
+            { method: 'GET', path: '/customers', description: 'Listar clientes' },
+            { method: 'GET', path: '/reports/sales', description: 'Relatório de vendas' },
+            { method: 'GET', path: '/reports/top-products', description: 'Produtos mais vendidos' }
+        ];
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEndpoints();
+            testConnection();
+        });
+
+        // Renderizar lista de endpoints
+        function renderEndpoints() {
+            const container = document.getElementById('endpointList');
+            container.innerHTML = endpoints.map(endpoint => `
+                <div class="endpoint-card">
+                    <span class="endpoint-method method-${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+                    <strong>${endpoint.path}</strong>
+                    <p style="margin-top: 0.5rem; color: #666;">${endpoint.description}</p>
+                    <button class="test-button" style="margin-top: 0.5rem;" 
+                            onclick="testEndpoint('${endpoint.method}', '${endpoint.path}')">
+                        Testar
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Adicionar entrada no log
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = { timestamp, message, type };
+            logEntries.push(entry);
+            
+            const logArea = document.getElementById('logArea');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log-entry log-${type}`;
+            logDiv.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            logArea.appendChild(logDiv);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // Limpar log
+        function clearLog() {
+            logEntries = [];
+            document.getElementById('logArea').innerHTML = '<div class="log-info">Log limpo.</div>';
+        }
+
+        // Atualizar status da API
+        function updateApiStatus(online) {
+            const statusDiv = document.getElementById('apiStatus');
+            if (online) {
+                statusDiv.innerHTML = '<span class="status-indicator status-online"></span><span>✅ API Online e Funcionando</span>';
+            } else {
+                statusDiv.innerHTML = '<span class="status-indicator status-offline"></span><span>❌ API Offline ou Inacessível</span>';
+            }
+        }
+
+        // Testar conexão
+        async function testConnection() {
+            addLog('Testando conexão com a API...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/test`);
+                if (response.ok) {
+                    const data = await response.json();
+                    addLog(`✅ Conexão bem-sucedida: ${data.message}`, 'success');
+                    updateApiStatus(true);
+                    return true;
+                } else {
+                    throw new Error(`Status: ${response.status}`);
+                }
+            } catch (error) {
+                addLog(`❌ Erro de conexão: ${error.message}`, 'error');
+                updateApiStatus(false);
+                return false;
+            }
+        }
+
+        // Testar endpoint específico
+        async function testEndpoint(method, path) {
+            addLog(`Testando ${method} ${path}...`, 'info');
+            
+            try {
+                const options = { method };
+                if (method === 'POST') {
+                    options.headers = { 'Content-Type': 'application/json' };
+                }
+                
+                const response = await fetch(`${API_BASE}${path}`, options);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog(`✅ ${method} ${path} - Sucesso (${Array.isArray(data) ? data.length + ' itens' : 'OK'})`, 'success');
+                    return data;
+                } else {
+                    throw new Error(data.error || `Status: ${response.status}`);
+                }
+            } catch (error) {
+                addLog(`❌ ${method} ${path} - Erro: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        // Testes específicos
+        async function testDashboard() {
+            const data = await testEndpoint('GET', '/dashboard');
+            if (data) {
+                addLog(`📊 Dashboard - Produtos: ${data.total_products}, Vendas hoje: ${data.today_sales}, Receita: R$ ${data.today_revenue}`, 'info');
+            }
+        }
+
+        async function testProducts() {
+            const data = await testEndpoint('GET', '/products');
+            if (data) {
+                addLog(`📦 Produtos carregados: ${data.length} produtos encontrados`, 'success');
+            }
+        }
+
+        async function testSales() {
+            const data = await testEndpoint('GET', '/sales');
+            if (data) {
+                addLog(`💰 Vendas carregadas: ${data.length} vendas encontradas`, 'success');
+            }
+        }
+
+        // Executar todos os testes
+        async function runAllTests() {
+            addLog('🚀 Iniciando bateria completa de testes...', 'info');
+            
+            let passed = 0;
+            let failed = 0;
+            
+            for (const endpoint of endpoints) {
+                if (endpoint.method === 'GET') {
+                    const result = await testEndpoint(endpoint.method, endpoint.path);
+                    if (result !== null) {
+                        passed++;
+                    } else {
+                        failed++;
+                    }
+                    // Pequena pausa entre requests
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+            
+            addLog(`🏁 Testes concluídos - ✅ ${passed} sucessos, ❌ ${failed} falhas`, passed > failed ? 'success' : 'error');
+        }
+
+        // Criar produto de teste
+        async function createSampleProduct() {
+            const productData = {
+                name: 'Produto Teste ' + Date.now(),
+                sku: 'TEST-' + Date.now(),
+                cost_price: 10.50,
+                selling_price: 15.90,
+                stock_quantity: 100,
+                min_stock_level: 10,
+                description: 'Produto criado para teste da API'
+            };
+            
+            addLog('➕ Criando produto de teste...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(productData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    addLog(`✅ Produto criado com sucesso - ID: ${result.id}`, 'success');
+                    document.getElementById('insertResults').innerHTML += 
+                        `<div class="log-success">Produto "${productData.name}" criado com ID: ${result.id}</div>`;
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                addLog(`❌ Erro ao criar produto: ${error.message}`, 'error');
+                document.getElementById('insertResults').innerHTML += 
+                    `<div class="log-error">Erro: ${error.message}</div>`;
+            }
+        }
+
+        // Criar venda de teste
+        async function createSampleSale() {
+            // Primeiro, buscar produtos disponíveis
+            addLog('🔍 Buscando produtos para venda de teste...', 'info');
+            
+            try {
+                const productsResponse = await fetch(`${API_BASE}/products`);
+                const products = await productsResponse.json();
+                
+                if (!products || products.length === 0) {
+                    throw new Error('Nenhum produto encontrado. Crie um produto primeiro.');
+                }
+                
+                // Usar o primeiro produto com estoque
+                const productWithStock = products.find(p => p.stock_quantity > 0);
+                if (!productWithStock) {
+                    throw new Error('Nenhum produto com estoque disponível.');
+                }
+                
+                const saleData = {
+                    payment_method: 'cash',
+                    discount: 0,
+                    notes: 'Venda de teste criada automaticamente',
+                    items: [{
+                        product_id: productWithStock.id,
+                        quantity: 1,
+                        unit_price: parseFloat(productWithStock.selling_price)
+                    }]
+                };
+                
+                addLog('🛒 Criando venda de teste...', 'info');
+                
+                const response = await fetch(`${API_BASE}/sales`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(saleData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    addLog(`✅ Venda criada com sucesso - ID: ${result.id}, Total: R$ ${result.total_amount}`, 'success');
+                    document.getElementById('insertResults').innerHTML += 
+                        `<div class="log-success">Venda criada - ID: ${result.id}, Total: R$ ${result.total_amount.toFixed(2)}</div>`;
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                addLog(`❌ Erro ao criar venda: ${error.message}`, 'error');
+                document.getElementById('insertResults').innerHTML += 
+                    `<div class="log-error">Erro: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
