@@ -1,9 +1,9 @@
+-- Estrutura pública para desenvolvimento; sem dados de usuários, contatos ou senhas.
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 26, 2025 at 02:37 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -25,7 +25,7 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `AdjustStock` (IN `p_product_id` INT, IN `p_new_quantity` INT, IN `p_notes` TEXT)   BEGIN
+CREATE PROCEDURE `AdjustStock` (IN `p_product_id` INT, IN `p_new_quantity` INT, IN `p_notes` TEXT)   BEGIN
     DECLARE current_stock INT;
     DECLARE difference INT;
     
@@ -63,7 +63,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `AdjustStock` (IN `p_product_id` INT
     );
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `GetSalesReport` (IN `start_date` DATE, IN `end_date` DATE)   BEGIN
+CREATE PROCEDURE `GetSalesReport` (IN `start_date` DATE, IN `end_date` DATE)   BEGIN
     SELECT 
         DATE(s.sale_date) as date,
         COUNT(s.id) as total_sales,
@@ -95,19 +95,6 @@ CREATE TABLE `categories` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `categories`
---
-
-INSERT INTO `categories` (`id`, `name`, `description`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Eletrônicos', 'Produtos eletrônicos diversos', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(2, 'Roupas', 'Vestuário em geral', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(3, 'Casa e Cozinha', 'Produtos para casa e cozinha', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(4, 'Livros', 'Livros e material de leitura', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(5, 'Esportes', 'Artigos esportivos', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(6, 'Beleza', 'Produtos de beleza e cuidados pessoais', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(7, 'Automotivo', 'Peças e acessórios automotivos', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(8, 'Ferramentas', 'Ferramentas e equipamentos', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15');
 
 -- --------------------------------------------------------
 
@@ -132,16 +119,6 @@ CREATE TABLE `customers` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `customers`
---
-
-INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `address`, `city`, `state`, `zip_code`, `tax_id`, `birth_date`, `customer_type`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'João Silva', 'joao.silva@email.com', '(11) 98888-0001', 'Rua A, 100', 'São Paulo', 'SP', NULL, NULL, NULL, 'individual', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(2, 'Maria Oliveira', 'maria.oliveira@email.com', '(11) 98888-0002', 'Rua B, 200', 'São Paulo', 'SP', NULL, NULL, NULL, 'individual', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(3, 'Empresa ABC Ltda', 'contato@empresaabc.com', '(11) 98888-0003', 'Av. Empresarial, 300', 'São Paulo', 'SP', NULL, NULL, NULL, 'business', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(4, 'Carlos Santos', 'carlos.santos@email.com', '(11) 98888-0004', 'Rua C, 400', 'São Paulo', 'SP', NULL, NULL, NULL, 'individual', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(5, 'Loja XYZ', 'vendas@lojaxyz.com', '(11) 98888-0005', 'Rua Comercial, 500', 'São Paulo', 'SP', NULL, NULL, NULL, 'business', 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15');
 
 -- --------------------------------------------------------
 
@@ -171,22 +148,6 @@ CREATE TABLE `products` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `products`
---
-
-INSERT INTO `products` (`id`, `name`, `description`, `sku`, `barcode`, `category_id`, `supplier_id`, `cost_price`, `selling_price`, `stock_quantity`, `min_stock_level`, `max_stock_level`, `unit`, `weight`, `dimensions`, `location`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Smartphone Samsung Galaxy A54', 'Smartphone Android com 128GB', 'SMART-SAM-A54', '7894567890123', 1, 1, 800.00, 1200.00, 15, 5, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(2, 'Camiseta Polo Masculina', 'Camiseta polo 100% algodão', 'POLO-MASC-001', '7894567890124', 2, 2, 25.00, 45.00, 50, 10, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(3, 'Panela de Pressão 5L', 'Panela de pressão em alumínio', 'PANELA-PRESS-5L', '7894567890125', 3, 3, 35.00, 65.00, 20, 5, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(4, 'Livro: Clean Code', 'Livro sobre programação limpa', 'LIVRO-CLEAN-CODE', '7894567890126', 4, 4, 40.00, 75.00, 8, 3, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(5, 'Tênis Nike Air Max', 'Tênis esportivo Nike Air Max', 'TENIS-NIKE-AIRMAX', '7894567890127', 5, 1, 180.00, 280.00, 0, 4, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-26 00:18:41'),
-(6, 'Shampoo Pantene 400ml', 'Shampoo hidratante Pantene', 'SHAMP-PANT-400', '7894567890128', 6, 2, 8.00, 15.00, 0, 20, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-26 00:13:44'),
-(7, 'Óleo Motor 5W30', 'Óleo lubrificante para motor', 'OLEO-MOTOR-5W30', '7894567890129', 7, 3, 25.00, 45.00, 0, 8, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-26 00:25:09'),
-(8, 'Furadeira Bosch 500W', 'Furadeira elétrica profissional', 'FURAD-BOSCH-500', '7894567890130', 8, 4, 120.00, 220.00, 6, 2, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(9, 'Mouse Gamer RGB', 'Mouse óptico para games com LED', 'MOUSE-GAMER-RGB', '7894567890131', 1, 1, 45.00, 85.00, 25, 5, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(10, 'Café Premium 500g', 'Café torrado e moído premium', 'CAFE-PREM-500G', '7894567890132', 3, 3, 12.00, 22.00, 0, 15, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-26 00:24:58'),
-(11, 'TESTE', NULL, '2', NULL, NULL, NULL, 12.00, 31.00, 0, 1, NULL, 'un', NULL, NULL, NULL, 1, '2025-06-25 23:54:53', '2025-06-26 00:13:23');
 
 -- --------------------------------------------------------
 
@@ -249,23 +210,6 @@ CREATE TABLE `sales` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `sales`
---
-
-INSERT INTO `sales` (`id`, `customer_id`, `sale_date`, `total_amount`, `discount`, `final_amount`, `payment_method`, `payment_status`, `status`, `notes`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, 1, '2024-11-20 13:30:00', 1200.00, 0.00, 1200.00, 'card', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(2, 2, '2024-11-20 17:15:00', 90.00, 5.00, 85.00, 'pix', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(3, 3, '2024-11-21 12:45:00', 280.00, 0.00, 280.00, 'transfer', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(4, 1, '2024-11-21 19:20:00', 130.00, 10.00, 120.00, 'cash', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(5, 4, '2024-11-22 14:10:00', 65.00, 0.00, 65.00, 'card', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(6, 2, '2025-06-25 22:54:15', 45.00, 0.00, 45.00, 'pix', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(7, 5, '2025-06-25 21:54:15', 220.00, 0.00, 220.00, 'card', 'paid', 'completed', NULL, NULL, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(8, NULL, '2025-06-26 00:13:23', 62.00, 0.00, 62.00, 'cash', 'paid', 'completed', NULL, NULL, '2025-06-26 00:13:23', '2025-06-26 00:13:23'),
-(9, NULL, '2025-06-26 00:13:44', 15.00, 0.00, 15.00, 'cash', 'paid', 'completed', NULL, NULL, '2025-06-26 00:13:44', '2025-06-26 00:13:44'),
-(10, NULL, '2025-06-26 00:18:41', 280.00, 0.00, 280.00, 'cash', 'paid', 'completed', NULL, NULL, '2025-06-26 00:18:41', '2025-06-26 00:18:41'),
-(11, NULL, '2025-06-26 00:24:58', 22.00, 0.00, 22.00, 'cash', 'paid', 'completed', NULL, NULL, '2025-06-26 00:24:58', '2025-06-26 00:24:58'),
-(12, NULL, '2025-06-26 00:25:09', 45.00, 0.00, 45.00, 'pix', 'paid', 'completed', NULL, NULL, '2025-06-26 00:25:09', '2025-06-26 00:25:09');
 
 -- --------------------------------------------------------
 
@@ -284,23 +228,6 @@ CREATE TABLE `sale_items` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `sale_items`
---
-
-INSERT INTO `sale_items` (`id`, `sale_id`, `product_id`, `quantity`, `unit_price`, `total_price`, `discount_amount`, `created_at`) VALUES
-(1, 1, 1, 1, 1200.00, 1200.00, 0.00, '2025-06-25 23:54:15'),
-(2, 2, 2, 2, 45.00, 90.00, 0.00, '2025-06-25 23:54:15'),
-(3, 3, 5, 1, 280.00, 280.00, 0.00, '2025-06-25 23:54:15'),
-(4, 4, 3, 2, 65.00, 130.00, 0.00, '2025-06-25 23:54:15'),
-(5, 5, 3, 1, 65.00, 65.00, 0.00, '2025-06-25 23:54:15'),
-(6, 6, 2, 1, 45.00, 45.00, 0.00, '2025-06-25 23:54:15'),
-(7, 7, 8, 1, 220.00, 220.00, 0.00, '2025-06-25 23:54:15'),
-(8, 8, 11, 2, 31.00, 62.00, 0.00, '2025-06-26 00:13:23'),
-(9, 9, 6, 1, 15.00, 15.00, 0.00, '2025-06-26 00:13:44'),
-(10, 10, 5, 1, 280.00, 280.00, 0.00, '2025-06-26 00:18:41'),
-(11, 11, 10, 1, 22.00, 22.00, 0.00, '2025-06-26 00:24:58'),
-(12, 12, 7, 1, 45.00, 45.00, 0.00, '2025-06-26 00:25:09');
 
 --
 -- Triggers `sale_items`
@@ -359,21 +286,6 @@ CREATE TABLE `stock_movements` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `stock_movements`
---
-
-INSERT INTO `stock_movements` (`id`, `product_id`, `movement_type`, `quantity`, `previous_stock`, `new_stock`, `reference_type`, `reference_id`, `cost_price`, `notes`, `user_id`, `created_at`) VALUES
-(1, 11, 'out', 2, 1, -1, 'sale', 8, NULL, 'Venda #8', NULL, '2025-06-26 00:13:23'),
-(2, 11, 'out', 2, NULL, NULL, 'sale', 8, NULL, 'Venda automatica', NULL, '2025-06-26 00:13:23'),
-(3, 6, 'out', 1, 100, 99, 'sale', 9, NULL, 'Venda #9', NULL, '2025-06-26 00:13:44'),
-(4, 6, 'out', 1, NULL, NULL, 'sale', 9, NULL, 'Venda automatica', NULL, '2025-06-26 00:13:44'),
-(5, 5, 'out', 1, 12, 11, 'sale', 10, NULL, 'Venda #10', NULL, '2025-06-26 00:18:41'),
-(6, 5, 'out', 1, NULL, NULL, 'sale', 10, NULL, 'Venda automatica', NULL, '2025-06-26 00:18:41'),
-(7, 10, 'out', 1, 60, 59, 'sale', 11, NULL, 'Venda #11', NULL, '2025-06-26 00:24:58'),
-(8, 10, 'out', 1, NULL, NULL, 'sale', 11, NULL, 'Venda automatica', NULL, '2025-06-26 00:24:58'),
-(9, 7, 'out', 1, 30, 29, 'sale', 12, NULL, 'Venda #12', NULL, '2025-06-26 00:25:09'),
-(10, 7, 'out', 1, NULL, NULL, 'sale', 12, NULL, 'Venda automatica', NULL, '2025-06-26 00:25:09');
 
 --
 -- Triggers `stock_movements`
@@ -412,15 +324,6 @@ CREATE TABLE `suppliers` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `suppliers`
---
-
-INSERT INTO `suppliers` (`id`, `name`, `contact_person`, `email`, `phone`, `address`, `city`, `state`, `zip_code`, `tax_id`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'TechDistribuidor Ltda', 'João Silva', 'joao@techdist.com', '(11) 99999-0001', 'Rua das Flores, 123', 'São Paulo', 'SP', NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(2, 'ModaStyle Atacado', 'Maria Santos', 'maria@modastyle.com', '(11) 99999-0002', 'Av. Paulista, 456', 'São Paulo', 'SP', NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(3, 'CasaBella Fornecedor', 'Pedro Oliveira', 'pedro@casabella.com', '(11) 99999-0003', 'Rua do Comércio, 789', 'São Paulo', 'SP', NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15'),
-(4, 'LivroMundo Distribuidora', 'Ana Costa', 'ana@livromundo.com', '(11) 99999-0004', 'Alameda dos Livros, 321', 'São Paulo', 'SP', NULL, NULL, 1, '2025-06-25 23:54:15', '2025-06-25 23:54:15');
 
 -- --------------------------------------------------------
 
@@ -441,12 +344,6 @@ CREATE TABLE `users` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `username`, `email`, `password_hash`, `full_name`, `role`, `is_active`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'admin@sistema.com', '$2a$10$rQ8QHFe7P7GQQm5x5v5x5eJ1J1J1J1J1J1J1J1J1J1J1J1J1J1J1J1', 'Administrador do Sistema', 'admin', 1, NULL, '2025-06-25 23:54:16', '2025-06-25 23:54:16');
 
 -- --------------------------------------------------------
 
@@ -638,19 +535,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `purchases`
@@ -668,31 +565,31 @@ ALTER TABLE `purchase_items`
 -- AUTO_INCREMENT for table `sales`
 --
 ALTER TABLE `sales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `sale_items`
 --
 ALTER TABLE `sale_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `stock_movements`
 --
 ALTER TABLE `stock_movements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `suppliers`
 --
 ALTER TABLE `suppliers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- Constraints for dumped tables
